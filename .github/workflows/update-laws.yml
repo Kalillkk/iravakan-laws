@@ -1,0 +1,31 @@
+name: Update Laws Daily
+
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  update-laws:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm install axios cheerio
+        
+      - name: Run scraper
+        run: node scraper.js
+        
+      - name: Commit and push
+        run: |
+          git config user.name "GitHub Actions Bot"
+          git config user.email "actions@github.com"
+          git add laws.json
+          git commit -m "Auto-update laws $(date +'%Y-%m-%d')" || exit 0
+          git push
